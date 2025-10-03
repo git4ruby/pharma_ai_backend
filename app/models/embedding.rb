@@ -3,6 +3,7 @@ class Embedding < ApplicationRecord
 
   validates :chunk_text, presence: true
   validates :chunk_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :chunk_index, uniqueness: { scope: :document_id }
   validates :embedding, presence: true
   validates :embedding_model, presence: true
 
