@@ -31,3 +31,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Ignore test scripts
+test_*.rb
+test_*.sh

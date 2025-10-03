@@ -6,8 +6,22 @@ Rails.application.routes.draw do
     registration: 'signup'
   }, controllers: {
     sessions: 'api/auth/sessions',
-    registrations: 'api/auth/registrations'
+    registrations: 'api/auth/registrations',
+    passwords: 'api/auth/passwords'
   }
+
+  # API routes
+  namespace :api do
+    # User management (RBAC demo)
+    resources :users, only: [:index, :destroy] do
+      collection do
+        get 'me'
+      end
+      member do
+        patch 'role', to: 'users#update_role'
+      end
+    end
+  end
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check

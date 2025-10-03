@@ -35,6 +35,41 @@ class User < ApplicationRecord
     active? ? super : :account_inactive
   end
 
+  # Permission methods for RBAC
+  # These define what each role can do in the system
+
+  def can_upload_documents?
+    doctor? || admin?
+  end
+
+  def can_search_documents?
+    true # All authenticated users can search
+  end
+
+  def can_manage_users?
+    admin?
+  end
+
+  def can_view_audit_logs?
+    auditor? || admin?
+  end
+
+  def can_delete_documents?
+    admin?
+  end
+
+  def can_access_analytics?
+    researcher? || doctor? || admin?
+  end
+
+  # Check if user can access a specific resource
+  def can_access?(resource)
+    return true if admin? # Admins can access everything
+    return false unless resource.respond_to?(:user_id)
+
+    resource.user_id == id # Users can only access their own resources
+  end
+
   private
 
   def password_complexity
