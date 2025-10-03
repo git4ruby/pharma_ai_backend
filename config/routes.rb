@@ -21,6 +21,13 @@ Rails.application.routes.draw do
         patch 'role', to: 'users#update_role'
       end
     end
+
+    # Session management (Redis-backed)
+    resources :sessions, only: [:index, :destroy] do
+      collection do
+        get 'current'
+      end
+    end
   end
 
   # Health check
