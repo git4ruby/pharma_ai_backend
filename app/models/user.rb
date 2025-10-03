@@ -9,6 +9,8 @@ class User < ApplicationRecord
 
   # Associations
   has_many :audit_logs, dependent: :restrict_with_error
+  has_many :documents, dependent: :destroy
+  has_many :queries, dependent: :destroy
 
   # Role enum for RBAC
   enum role: { doctor: 0, researcher: 1, auditor: 2, admin: 3 }

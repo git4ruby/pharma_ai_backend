@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_03_202150) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_03_203553) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "audit_logs", force: :cascade do |t|
@@ -32,6 +33,71 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_03_202150) do
     t.index ["resource_type"], name: "index_audit_logs_on_resource_type"
     t.index ["user_id", "performed_at"], name: "index_audit_logs_on_user_id_and_performed_at"
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
+
+  create_table "citations", force: :cascade do |t|
+    t.bigint "query_id", null: false
+    t.bigint "document_id", null: false
+    t.bigint "embedding_id", null: false
+    t.float "relevance_score", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_citations_on_document_id"
+    t.index ["embedding_id"], name: "index_citations_on_embedding_id"
+    t.index ["query_id", "relevance_score"], name: "index_citations_on_query_id_and_relevance_score"
+    t.index ["query_id"], name: "index_citations_on_query_id"
+  end
+
+  create_table "documents", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.string "filename", null: false
+    t.string "file_path", null: false
+    t.string "file_type", null: false
+    t.integer "file_size", null: false
+    t.boolean "contains_phi", default: false, null: false
+    t.string "classification"
+    t.string "content_hash", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contains_phi"], name: "index_documents_on_contains_phi"
+    t.index ["content_hash"], name: "index_documents_on_content_hash", unique: true
+    t.index ["file_type"], name: "index_documents_on_file_type"
+    t.index ["status"], name: "index_documents_on_status"
+    t.index ["user_id", "created_at"], name: "index_documents_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_documents_on_user_id"
+  end
+
+  create_table "embeddings", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.text "chunk_text", null: false
+    t.integer "chunk_index", null: false
+    t.text "embedding", null: false
+    t.string "embedding_model", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id", "chunk_index"], name: "index_embeddings_on_document_id_and_chunk_index", unique: true
+    t.index ["document_id"], name: "index_embeddings_on_document_id"
+    t.index ["embedding_model"], name: "index_embeddings_on_embedding_model"
+  end
+
+  create_table "queries", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "question", null: false
+    t.text "answer"
+    t.string "status", default: "pending", null: false
+    t.float "processing_time"
+    t.jsonb "metadata", default: {}
+    t.datetime "queried_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["metadata"], name: "index_queries_on_metadata", using: :gin
+    t.index ["queried_at"], name: "index_queries_on_queried_at"
+    t.index ["status"], name: "index_queries_on_status"
+    t.index ["user_id", "queried_at"], name: "index_queries_on_user_id_and_queried_at"
+    t.index ["user_id"], name: "index_queries_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -64,4 +130,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_03_202150) do
   end
 
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "citations", "documents"
+  add_foreign_key "citations", "embeddings"
+  add_foreign_key "citations", "queries"
+  add_foreign_key "documents", "users"
+  add_foreign_key "embeddings", "documents"
+  add_foreign_key "queries", "users"
 end
