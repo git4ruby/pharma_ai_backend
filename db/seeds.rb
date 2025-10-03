@@ -190,6 +190,43 @@ Citation.find_or_create_by!(query: query3, embedding: embedding3_1) do |c|
   c.relevance_score = 0.97
 end
 
+puts "\nCreating sample audit logs..."
+
+# Login audit logs
+AuditLog.find_or_create_by!(user: admin, action: 'user.login', performed_at: 3.days.ago) do |log|
+  log.ip_address = '192.168.1.100'
+  log.user_agent = 'Mozilla/5.0'
+  log.metadata = { login_method: 'email' }
+end
+
+AuditLog.find_or_create_by!(user: doctor, action: 'user.login', performed_at: 2.days.ago) do |log|
+  log.ip_address = '192.168.1.101'
+  log.user_agent = 'Mozilla/5.0'
+  log.metadata = { login_method: 'email' }
+end
+
+# Document upload logs
+AuditLog.find_or_create_by!(user: doctor, action: 'document.upload', resource: doc1, performed_at: 2.days.ago) do |log|
+  log.ip_address = '192.168.1.101'
+  log.user_agent = 'Mozilla/5.0'
+  log.metadata = { document_id: doc1.id, filename: doc1.filename }
+end
+
+# Query logs
+AuditLog.find_or_create_by!(user: doctor, action: 'query.create', resource: query1, performed_at: 1.day.ago) do |log|
+  log.ip_address = '192.168.1.101'
+  log.user_agent = 'Mozilla/5.0'
+  log.metadata = { query_id: query1.id, question: query1.question }
+end
+
+AuditLog.find_or_create_by!(user: researcher, action: 'query.create', resource: query3, performed_at: 1.day.ago) do |log|
+  log.ip_address = '192.168.1.102'
+  log.user_agent = 'Mozilla/5.0'
+  log.metadata = { query_id: query3.id, question: query3.question }
+end
+
+puts "Created #{AuditLog.count} audit logs"
+
 puts "\nSeed completed successfully!"
 puts "\nTest credentials:"
 puts "Admin: admin@test.com / Admin@123456"
@@ -202,3 +239,4 @@ puts "- #{Document.count} documents"
 puts "- #{Embedding.count} embeddings"
 puts "- #{Query.count} queries"
 puts "- #{Citation.count} citations"
+puts "- #{AuditLog.count} audit logs"

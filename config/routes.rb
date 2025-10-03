@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   # API routes
   namespace :api do
     # User management (RBAC demo)
-    resources :users, only: [:index, :destroy] do
+    resources :users, only: [:index, :create, :update, :destroy] do
       collection do
         get 'me'
       end
@@ -34,6 +34,15 @@ Rails.application.routes.draw do
 
     # Query/Q&A endpoints
     resources :queries, only: [:index, :show, :create]
+
+    # Audit logs
+    resources :audit_logs, only: [:index], path: 'audit-logs'
+
+    # Compliance
+    get 'compliance/status', to: 'compliance#status'
+
+    # Analytics
+    get 'analytics/dashboard', to: 'analytics#dashboard'
   end
 
   # Health check
