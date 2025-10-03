@@ -7,6 +7,9 @@ class User < ApplicationRecord
          :trackable, :lockable, :timeoutable,
          :jwt_authenticatable, jwt_revocation_strategy: self
 
+  # Associations
+  has_many :audit_logs, dependent: :restrict_with_error
+
   # Role enum for RBAC
   enum role: { doctor: 0, researcher: 1, auditor: 2, admin: 3 }
 

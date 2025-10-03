@@ -10,9 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_03_161556) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_03_202150) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "audit_logs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "action", null: false
+    t.string "resource_type"
+    t.integer "resource_id"
+    t.string "ip_address"
+    t.text "user_agent"
+    t.jsonb "metadata", default: {}
+    t.datetime "performed_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action"], name: "index_audit_logs_on_action"
+    t.index ["metadata"], name: "index_audit_logs_on_metadata", using: :gin
+    t.index ["performed_at"], name: "index_audit_logs_on_performed_at"
+    t.index ["resource_type", "resource_id"], name: "index_audit_logs_on_resource_type_and_resource_id"
+    t.index ["resource_type"], name: "index_audit_logs_on_resource_type"
+    t.index ["user_id", "performed_at"], name: "index_audit_logs_on_user_id_and_performed_at"
+    t.index ["user_id"], name: "index_audit_logs_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -43,4 +63,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_03_161556) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  add_foreign_key "audit_logs", "users"
 end
