@@ -28,6 +28,12 @@ Rails.application.routes.draw do
         get 'current'
       end
     end
+
+    # Document management
+    resources :documents, only: [:index, :show, :create, :destroy]
+
+    # Query/Q&A endpoints
+    resources :queries, only: [:index, :show, :create]
   end
 
   # Health check

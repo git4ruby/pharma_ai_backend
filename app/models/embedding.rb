@@ -11,7 +11,12 @@ class Embedding < ApplicationRecord
   scope :ordered, -> { order(:chunk_index) }
 
   def embedding_vector
-    @embedding_vector ||= JSON.parse(embedding)
+    @embedding_vector ||= begin
+      JSON.parse(embedding)
+    rescue JSON::ParserError => e
+      Rails.logger.error "Failed to parse embedding for Embedding #{id}: #{e.message}"
+      []
+    end
   end
 
   def embedding_vector=(vector)
@@ -31,9 +36,12 @@ class Embedding < ApplicationRecord
   end
 
   def self.cosine_similarity(vec1, vec2)
-    dot_product = vec1.zip(vec2).sum { |a, b| a * b }
-    magnitude1 = Math.sqrt(vec1.sum { |a| a**2 })
-    magnitude2 = Math.sqrt(vec2.sum { |a| a**2 })
+    return 0 if vec1.nil? || vec2.nil? || vec1.empty? || vec2.empty?
+    return 0 if vec1.length != vec2.length
+
+    dot_product = vec1.zip(vec2).sum { |a, b| (a || 0) * (b || 0) }
+    magnitude1 = Math.sqrt(vec1.sum { |a| (a || 0)**2 })
+    magnitude2 = Math.sqrt(vec2.sum { |a| (a || 0)**2 })
 
     return 0 if magnitude1.zero? || magnitude2.zero?
 
