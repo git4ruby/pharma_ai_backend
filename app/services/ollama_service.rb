@@ -18,7 +18,9 @@ class OllamaService
         prompt: text
       }.to_json,
       headers: { 'Content-Type' => 'application/json' },
-      timeout: 30
+      timeout: 120,
+      read_timeout: 120,
+      open_timeout: 10
     )
 
     unless response.success?
@@ -44,7 +46,9 @@ class OllamaService
         stream: false
       }.to_json,
       headers: { 'Content-Type' => 'application/json' },
-      timeout: 60
+      timeout: 120,
+      read_timeout: 120,
+      open_timeout: 10
     )
 
     unless response.success?

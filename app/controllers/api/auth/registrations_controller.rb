@@ -13,10 +13,15 @@ module Api
         yield resource if block_given?
 
         if resource.persisted?
+          sign_in(resource_name, resource)
+          # Generate JWT token manually
+          token = Warden::JWTAuth::UserEncoder.new.call(resource, :user, nil).first
+
           render json: {
             status: { code: 201, message: 'User registered successfully.' },
             data: {
-              user: UserSerializer.new(resource).serializable_hash[:data][:attributes]
+              user: UserSerializer.new(resource).serializable_hash[:data][:attributes],
+              token: token
             }
           }, status: :created
         else
@@ -70,18 +75,7 @@ module Api
       end
 
       def respond_with(resource, _opts = {})
-        if resource.persisted?
-          render json: {
-            status: { code: 201, message: 'User registered successfully.' },
-            data: {
-              user: UserSerializer.new(resource).serializable_hash[:data][:attributes]
-            }
-          }, status: :created
-        else
-          render json: {
-            status: { code: 422, message: 'User registration failed.', errors: resource.errors.full_messages }
-          }, status: :unprocessable_entity
-        end
+        # This is overridden in create method above
       end
 
       def configure_sign_up_params

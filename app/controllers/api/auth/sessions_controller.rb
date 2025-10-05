@@ -72,10 +72,14 @@ module Api
       private
 
       def respond_with(resource, _opts = {})
+        # Generate JWT token manually
+        token = Warden::JWTAuth::UserEncoder.new.call(resource, :user, nil).first
+
         render json: {
           status: { code: 200, message: 'Logged in successfully.' },
           data: {
             user: UserSerializer.new(resource).serializable_hash[:data][:attributes],
+            token: token,
             session: {
               timeout_minutes: ENV.fetch('SESSION_TIMEOUT_MINUTES', 15).to_i,
               expires_at: (Time.current + ENV.fetch('SESSION_TIMEOUT_MINUTES', 15).to_i.minutes).iso8601
