@@ -3,8 +3,8 @@ class Api::QueriesController < ApplicationController
   before_action :set_query, only: [:show]
 
   def index
-    @queries = current_user.admin? ? Query.all : current_user.queries
-    @queries = @queries.recent.includes(:user, :citations, :documents)
+    # All users (including admins) see only their own queries in the Q&A interface
+    @queries = current_user.queries.recent.includes(:user, :citations, :documents)
 
     render json: {
       status: { code: 200, message: 'Queries retrieved successfully' },

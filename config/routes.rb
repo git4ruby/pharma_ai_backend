@@ -35,6 +35,13 @@ Rails.application.routes.draw do
     # Query/Q&A endpoints
     resources :queries, only: [:index, :show, :create]
 
+    # Query audit (for admins/auditors)
+    resources :query_audits, only: [:index], path: 'query-audits' do
+      collection do
+        get 'statistics'
+      end
+    end
+
     # Audit logs
     resources :audit_logs, only: [:index], path: 'audit-logs'
 

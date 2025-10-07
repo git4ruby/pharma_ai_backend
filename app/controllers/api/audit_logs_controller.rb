@@ -7,26 +7,31 @@ module Api
 
     # GET /api/audit-logs
     def index
-      @audit_logs = AuditLog.includes(:user)
-                            .order(created_at: :desc)
-                            .page(params[:page] || 1)
-                            .per(params[:per_page] || 50)
+      @audit_logs = AuditLog.includes(:user).order(created_at: :desc)
 
       # Filtering
       @audit_logs = @audit_logs.where(user_id: params[:user_id]) if params[:user_id].present?
-      @audit_logs = @audit_logs.where(action: params[:action]) if params[:action].present?
+      @audit_logs = @audit_logs.where(action: params[:action_filter]) if params[:action_filter].present?
       @audit_logs = @audit_logs.where('created_at >= ?', params[:start_date]) if params[:start_date].present?
       @audit_logs = @audit_logs.where('created_at <= ?', params[:end_date]) if params[:end_date].present?
+
+      # Manual pagination
+      page = (params[:page] || 1).to_i
+      per_page = (params[:per_page] || 50).to_i
+      total_count = @audit_logs.count
+      total_pages = (total_count.to_f / per_page).ceil
+
+      @audit_logs = @audit_logs.offset((page - 1) * per_page).limit(per_page)
 
       render json: {
         status: { code: 200, message: 'Audit logs retrieved successfully' },
         data: {
           audit_logs: @audit_logs.map { |log| audit_log_json(log) },
           pagination: {
-            current_page: @audit_logs.current_page,
-            total_pages: @audit_logs.total_pages,
-            total_count: @audit_logs.total_count,
-            per_page: @audit_logs.limit_value
+            current_page: page,
+            total_pages: total_pages,
+            total_count: total_count,
+            per_page: per_page
           }
         }
       }

@@ -1,5 +1,7 @@
 module Api
   class AnalyticsController < ApplicationController
+    include Authorizable
+
     before_action :authenticate_user!
     before_action :authorize_admin
 
