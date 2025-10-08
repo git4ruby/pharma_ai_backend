@@ -13,8 +13,7 @@ module Api
         yield resource if block_given?
 
         if resource.persisted?
-          sign_in(resource_name, resource)
-          # Generate JWT token manually
+          # Generate JWT token manually (no need for sign_in with JWT)
           token = Warden::JWTAuth::UserEncoder.new.call(resource, :user, nil).first
 
           render json: {
