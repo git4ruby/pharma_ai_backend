@@ -38,3 +38,7 @@ test_*.sh
 
 # Ignore test coverage reports
 /coverage/
+
+# Ignore macOS system files
+.DS_Store
+**/.DS_Store
