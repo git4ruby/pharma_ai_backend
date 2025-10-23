@@ -91,11 +91,11 @@ class Api::DocumentsController < ApplicationController
     )
 
     if @document.save
-      # Process document asynchronously (we'll add background job later)
-      # For now, just mark as pending
+      # Enqueue background job to process document
+      DocumentProcessorJob.perform_later(@document.id)
 
       render json: {
-        status: { code: 201, message: 'Document uploaded successfully' },
+        status: { code: 201, message: 'Document uploaded successfully. Processing will begin shortly.' },
         data: document_json(@document)
       }, status: :created
     else

@@ -3,10 +3,12 @@ class OllamaService
   class GenerationError < StandardError; end
 
   OLLAMA_HOST = ENV.fetch('OLLAMA_HOST', 'http://localhost:11434')
-  DEFAULT_MODEL = 'llama3.2:3b'
+  DEFAULT_GENERATION_MODEL = 'llama3.2:3b'
+  DEFAULT_EMBEDDING_MODEL = 'nomic-embed-text'
 
-  def initialize(model: DEFAULT_MODEL)
-    @model = model
+  def initialize(model: DEFAULT_GENERATION_MODEL)
+    @generation_model = model
+    @embedding_model = DEFAULT_EMBEDDING_MODEL
     @base_url = OLLAMA_HOST
   end
 
@@ -14,7 +16,7 @@ class OllamaService
     response = HTTParty.post(
       "#{@base_url}/api/embeddings",
       body: {
-        model: @model,
+        model: @embedding_model,
         prompt: text
       }.to_json,
       headers: { 'Content-Type' => 'application/json' },
@@ -29,7 +31,7 @@ class OllamaService
 
     parsed = JSON.parse(response.body)
     parsed['embedding']
-  rescue HTTParty::Error, Net::OpenTimeout, SocketError => e
+  rescue HTTParty::Error, Net::OpenTimeout, Net::ReadTimeout, SocketError => e
     raise ConnectionError, "Failed to connect to Ollama: #{e.message}"
   rescue JSON::ParserError => e
     raise GenerationError, "Invalid response from Ollama: #{e.message}"
@@ -41,7 +43,7 @@ class OllamaService
     response = HTTParty.post(
       "#{@base_url}/api/generate",
       body: {
-        model: @model,
+        model: @generation_model,
         prompt: prompt,
         stream: false
       }.to_json,
@@ -57,7 +59,7 @@ class OllamaService
 
     parsed = JSON.parse(response.body)
     parsed['response']
-  rescue HTTParty::Error, Net::OpenTimeout, SocketError => e
+  rescue HTTParty::Error, Net::OpenTimeout, Net::ReadTimeout, SocketError => e
     raise ConnectionError, "Failed to connect to Ollama: #{e.message}"
   rescue JSON::ParserError => e
     raise GenerationError, "Invalid response from Ollama: #{e.message}"

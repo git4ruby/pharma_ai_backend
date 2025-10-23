@@ -43,5 +43,8 @@ module Backend
 
     # Enable Rack::Attack for rate limiting and security
     config.middleware.use Rack::Attack
+
+    # Configure Active Job to use Sidekiq
+    config.active_job.queue_adapter = :sidekiq
   end
 end

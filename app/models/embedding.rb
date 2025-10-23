@@ -24,10 +24,13 @@ class Embedding < ApplicationRecord
     @embedding_vector = vector
   end
 
-  def self.find_similar(query_embedding, limit: 10)
+  def self.find_similar(query_embedding, limit: 10, document_ids: nil)
     query_vector = query_embedding.is_a?(String) ? JSON.parse(query_embedding) : query_embedding
 
-    all.map do |emb|
+    # Filter embeddings by document IDs if provided
+    scope = document_ids.present? ? where(document_id: document_ids) : all
+
+    scope.map do |emb|
       {
         embedding: emb,
         similarity: cosine_similarity(query_vector, emb.embedding_vector)

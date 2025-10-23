@@ -42,3 +42,7 @@ test_*.sh
 # Ignore macOS system files
 .DS_Store
 **/.DS_Store
+
+# Ignore test documents and generator script
+/test_documents/
+generate_test_documents.rb

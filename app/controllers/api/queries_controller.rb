@@ -40,7 +40,7 @@ class Api::QueriesController < ApplicationController
     begin
       @query.mark_as_processing!
 
-      search_results = SemanticSearch.search(question, limit: 5)
+      search_results = SemanticSearch.search(question, limit: 5, user: current_user)
 
       if search_results.empty?
         return render json: {
