@@ -1,10 +1,10 @@
-# PharmaAI Backend
+# Asclepius AI Backend
 
 A Ruby on Rails API backend for pharmaceutical document management with AI-powered semantic search and Q&A capabilities.
 
 ## Overview
 
-PharmaAI Backend provides a secure, HIPAA-compliant REST API for managing pharmaceutical documents, user authentication, role-based access control, and AI-powered document querying. The system integrates with Ollama for local AI inference and natural language processing, and uses background jobs for asynchronous document processing.
+Asclepius AI Backend provides a secure, HIPAA-compliant REST API for managing pharmaceutical documents, user authentication, role-based access control, and AI-powered document querying. The system integrates with Ollama for local AI inference and natural language processing, and uses background jobs for asynchronous document processing.
 
 ## Features
 
@@ -260,11 +260,11 @@ DELETE /api/admin/background_jobs/:jid
 - View own documents and public documents
 - Limited analytics
 
-### Viewer
-- Query public documents only
-- View query results
-- No upload capabilities
-- Read-only access
+### Doctor
+- Upload and manage own documents
+- Query all accessible documents
+- Access to PHI documents (only uploaded by them)
+- Full analytics access
 
 ## Background Jobs
 
@@ -396,7 +396,7 @@ RAILS_ENV=development
 OLLAMA_URL=http://localhost:11434
 
 # CORS
-ALLOWED_ORIGINS=http://localhost:5173
+ALLOWED_ORIGINS=http://localhost:4000
 
 # File Storage (for production)
 AWS_ACCESS_KEY_ID=your_aws_key
@@ -434,19 +434,6 @@ bundle exec sidekiq -e production
 5. Start Rails server:
 ```bash
 rails server -e production
-```
-
-### Platform-Specific Guides
-
-#### Heroku
-```bash
-heroku create pharma-ai-backend
-heroku addons:create heroku-postgresql:hobby-dev
-heroku addons:create heroku-redis:hobby-dev
-heroku config:set OLLAMA_URL=your_ollama_endpoint
-git push heroku main
-heroku run rails db:migrate
-heroku run rails db:seed
 ```
 
 ## Security Considerations

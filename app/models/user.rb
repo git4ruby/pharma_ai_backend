@@ -44,7 +44,7 @@ class User < ApplicationRecord
   # These define what each role can do in the system
 
   def can_upload_documents?
-    doctor? || admin?
+    doctor? || researcher? || admin?
   end
 
   def can_search_documents?
