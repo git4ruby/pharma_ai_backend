@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================="
-echo "PharmaAI Backend Test Suite"
+echo "Asclepius AI Backend Test Suite"
 echo "========================================="
 echo ""
 
