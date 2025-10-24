@@ -52,7 +52,7 @@ Asclepius AI Backend provides a secure, HIPAA-compliant REST API for managing ph
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone git@github.com:git4ruby/pharma_ai_backend.git
 cd pharma_ai_backend
 ```
 
