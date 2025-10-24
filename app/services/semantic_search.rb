@@ -67,16 +67,26 @@ class SemanticSearch
     return Document.pluck(:id) if @user.admin? # Admin can see all documents
     return Document.pluck(:id) if @user.auditor? # Auditor can see all documents for compliance
 
-    # Get user's own documents
-    accessible_ids = @user.documents.pluck(:id)
+    accessible_ids = []
 
-    # Doctors and Researchers can also access drug information (non-PHI public medical knowledge)
-    if @user.doctor? || @user.researcher?
-      drug_info_ids = Document.where("title LIKE ?", "%drug info%").pluck(:id)
-      accessible_ids = (accessible_ids + drug_info_ids).uniq
+    # 1. User's own documents (always accessible)
+    accessible_ids += @user.documents.pluck(:id)
+
+    # 2. PUBLIC documents (accessible to everyone)
+    accessible_ids += Document.where(classification: 'public').pluck(:id)
+
+    # 3. CONFIDENTIAL documents (accessible to all researchers for collaboration)
+    if @user.researcher?
+      accessible_ids += Document.where(classification: 'confidential').pluck(:id)
     end
 
-    accessible_ids
+    # 4. Legacy: Drug info documents (treat as public if classification not set)
+    if @user.doctor? || @user.researcher?
+      drug_info_ids = Document.where("title LIKE ? AND (classification IS NULL OR classification = '')", "%drug info%").pluck(:id)
+      accessible_ids += drug_info_ids
+    end
+
+    accessible_ids.uniq
   end
 
   def chunk_text(text)

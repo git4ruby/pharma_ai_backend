@@ -50,6 +50,17 @@ Rails.application.routes.draw do
 
     # Analytics
     get 'analytics/dashboard', to: 'analytics#dashboard'
+
+    # Admin routes
+    namespace :admin do
+      # Background jobs monitoring
+      get 'background_jobs/stats', to: 'background_jobs#stats'
+      get 'background_jobs/queues', to: 'background_jobs#queues'
+      get 'background_jobs/failed', to: 'background_jobs#failed_jobs'
+      get 'background_jobs/document_stats', to: 'background_jobs#document_processing_stats'
+      post 'background_jobs/:jid/retry', to: 'background_jobs#retry_job'
+      delete 'background_jobs/:jid', to: 'background_jobs#delete_job'
+    end
   end
 
   # Health check
