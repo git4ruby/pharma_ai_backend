@@ -23,6 +23,9 @@ gem "redis-rails"
 # Sidekiq for background jobs
 gem "sidekiq"
 
+# Sidekiq Scheduler for recurring jobs
+gem "sidekiq-scheduler"
+
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
 
@@ -65,6 +68,9 @@ gem "neighbor"
 
 # JSON API serializer
 gem "jsonapi-serializer"
+
+# AWS S3 for file storage
+gem "aws-sdk-s3", require: false
 
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ]

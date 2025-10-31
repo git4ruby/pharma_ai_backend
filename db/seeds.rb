@@ -1,6 +1,17 @@
 # Create default users for testing
 puts "Creating seed users..."
 
+# S3 System User (for documents uploaded directly to S3)
+s3_system_user = User.find_or_create_by!(email: 's3-system@asclepius-ai.com') do |user|
+  # Password meets validation: 12+ chars, upper, lower, number, special char
+  user.password = 'S3System@2025!'
+  user.password_confirmation = 'S3System@2025!'
+  user.first_name = 'S3'
+  user.last_name = 'System'
+  user.role = :admin
+end
+puts "Created S3 System user: #{s3_system_user.email}"
+
 # Admin user
 admin = User.find_or_create_by!(email: 'admin@test.com') do |user|
   user.password = 'Admin@123456'

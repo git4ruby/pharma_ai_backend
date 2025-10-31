@@ -60,6 +60,9 @@ Rails.application.routes.draw do
       get 'background_jobs/document_stats', to: 'background_jobs#document_processing_stats'
       post 'background_jobs/:jid/retry', to: 'background_jobs#retry_job'
       delete 'background_jobs/:jid', to: 'background_jobs#delete_job'
+
+      # S3 management
+      post 's3/import', to: 's3#import'
     end
   end
 

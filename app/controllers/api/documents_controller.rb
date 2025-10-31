@@ -62,26 +62,13 @@ class Api::DocumentsController < ApplicationController
       }, status: :conflict
     end
 
-    # Create upload directory if needed
-    upload_dir = Rails.root.join('storage', 'documents')
-    FileUtils.mkdir_p(upload_dir) unless Dir.exist?(upload_dir)
-
-    # Generate unique filename
+    # Create document record with Active Storage
     file_extension = File.extname(uploaded_file.original_filename)
-    unique_filename = "#{SecureRandom.uuid}#{file_extension}"
-    file_path = upload_dir.join(unique_filename)
-
-    # Save file
-    File.open(file_path, 'wb') do |file|
-      file.write(file_content)
-    end
-
-    # Create document record
     @document = Document.new(
       user: current_user,
       title: params[:title] || uploaded_file.original_filename.gsub(file_extension, ''),
       filename: uploaded_file.original_filename,
-      file_path: file_path.to_s,
+      file_path: "active_storage",  # Legacy field, not used with Active Storage
       file_type: content_type,
       file_size: uploaded_file.size,
       content_hash: content_hash,
@@ -90,27 +77,28 @@ class Api::DocumentsController < ApplicationController
       status: 'pending'
     )
 
+    # Attach file using Active Storage (will upload to S3)
+    @document.file.attach(
+      io: StringIO.new(file_content),
+      filename: uploaded_file.original_filename,
+      content_type: content_type
+    )
+
     if @document.save
       # Enqueue background job to process document
       DocumentProcessorJob.perform_later(@document.id)
 
       render json: {
-        status: { code: 201, message: 'Document uploaded successfully. Processing will begin shortly.' },
+        status: { code: 201, message: 'Document uploaded successfully to S3. Processing will begin shortly.' },
         data: document_json(@document)
       }, status: :created
     else
-      # Delete uploaded file if document creation fails
-      File.delete(file_path) if File.exist?(file_path)
-
       render json: {
         status: { code: 422, message: 'Failed to create document' },
         errors: @document.errors.full_messages
       }, status: :unprocessable_entity
     end
   rescue => e
-    # Clean up file if error occurs
-    File.delete(file_path) if defined?(file_path) && File.exist?(file_path)
-
     render json: {
       status: { code: 500, message: 'Internal server error' },
       errors: [e.message]
@@ -118,11 +106,12 @@ class Api::DocumentsController < ApplicationController
   end
 
   def destroy
-    file_path = @document.file_path
-
     if @document.destroy
-      # Delete physical file
-      File.delete(file_path) if File.exist?(file_path)
+      # Active Storage automatically deletes the file from S3
+      # Legacy local files cleanup
+      if @document.file_path && @document.file_path != "active_storage" && File.exist?(@document.file_path)
+        File.delete(@document.file_path)
+      end
 
       render json: {
         status: { code: 200, message: 'Document deleted successfully' }

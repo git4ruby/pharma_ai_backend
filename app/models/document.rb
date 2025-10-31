@@ -4,6 +4,9 @@ class Document < ApplicationRecord
   has_many :citations, dependent: :destroy
   has_many :queries, through: :citations
 
+  # Active Storage attachment for S3
+  has_one_attached :file
+
   enum status: {
     pending: 'pending',
     processing: 'processing',
@@ -16,7 +19,7 @@ class Document < ApplicationRecord
 
   validates :title, presence: true, length: { maximum: 255 }
   validates :filename, presence: true
-  validates :file_path, presence: true
+  # file_path is now optional (legacy field, kept for backward compatibility)
   validates :file_type, presence: true, inclusion: { in: ALLOWED_FILE_TYPES }
   validates :file_size, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: MAX_FILE_SIZE }
   validates :content_hash, presence: true, uniqueness: true

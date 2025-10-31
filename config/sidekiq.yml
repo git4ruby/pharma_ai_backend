@@ -4,3 +4,12 @@
 :queues:
   - default
   - mailers
+
+# Scheduled Jobs (using sidekiq-scheduler)
+:schedule:
+  s3_import_job:
+    # Run every 6 hours
+    cron: '0 */6 * * *'
+    class: S3ImportJob
+    queue: default
+    description: "Import new documents from S3 bucket every 6 hours"

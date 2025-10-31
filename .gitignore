@@ -43,6 +43,10 @@ test_*.sh
 .DS_Store
 **/.DS_Store
 
-# Ignore test documents and generator script
+# Ignore test documents and generator scripts
 /test_documents/
 generate_test_documents.rb
+generate_additional_test_docs.rb
+generate_hipaa_docs.rb
+generate_phi_documents.rb
+migrate_local_to_s3.rb

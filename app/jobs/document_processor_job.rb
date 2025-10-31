@@ -10,8 +10,8 @@ class DocumentProcessorJob < ApplicationJob
       # Update status to processing
       document.update!(status: 'processing')
 
-      # Parse document to extract text
-      text = DocumentParser.parse(document.file_path, document.file_type)
+      # Parse document to extract text (supports both Active Storage and legacy)
+      text = DocumentParser.parse_document(document)
 
       Rails.logger.info "Extracted #{text.length} characters from document #{document.id}"
 
