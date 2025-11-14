@@ -167,7 +167,8 @@ class Api::DocumentsController < ApplicationController
       user: {
         id: document.user.id,
         email: document.user.email,
-        full_name: document.user.full_name
+        full_name: document.user.full_name,
+        role: document.user.role
       },
       embeddings_count: document.embeddings.count
     }

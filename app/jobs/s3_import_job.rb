@@ -1,3 +1,5 @@
+require 'aws-sdk-s3'
+
 class S3ImportJob < ApplicationJob
   queue_as :default
 
@@ -86,6 +88,8 @@ class S3ImportJob < ApplicationJob
         file_type: content_type,
         file_size: file_size,
         content_hash: content_hash,
+        contains_phi: false,
+        classification: 'public',
         status: 'pending'
       )
 
